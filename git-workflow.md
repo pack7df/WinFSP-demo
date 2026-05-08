@@ -1,35 +1,35 @@
-﻿# Flujo de Trabajo Git - WinFSP Demo
+﻿# Git Workflow - WinFSP Demo
 
-Este documento describe el estándar de desarrollo y el flujo de trabajo Git para el proyecto SaunaFS WinFSP Demo.
+This document describes the development standards and Git workflow for the WinFSP Demo project.
 
-## 1. Ramas Principales
-- **main**: Contiene el código estable y versiones funcionales.
-- **develop**: Rama de integración donde se combinan las nuevas funcionalidades antes de pasar a main.
+## 1. Primary Branches
+- **main**: Contains stable, production-ready code and functional releases.
+- **develop**: Integration branch where new features are merged before moving to main.
 
-## 2. Desarrollo de Funcionalidades (Features)
-Para cada nueva mejora o cambio:
-1. Crear una rama desde `develop`: `git checkout -b feature/nombre-mejora`
-2. Trabajar en la funcionalidad.
-3. Realizar commits pequeños y descriptivos.
-4. Fusionar en `develop` mediante Pull Request o Merge.
+## 2. Feature Development
+For every new improvement or change:
+1. Create a branch from `develop`: `git checkout -b feature/feature-name`
+2. Implement the functionality.
+3. Use small, descriptive commits.
+4. Merge into `develop` via Pull Request.
 
-## 3. Estándar de Commits
-Se recomienda seguir el formato: `tipo: descripción corta`
-- `feat`: Nueva funcionalidad.
-- `fix`: Corrección de errores.
-- `refactor`: Limpieza o mejora de código sin cambiar funcionalidad.
-- `docs`: Cambios en documentación.
+## 3. Commit Message Standards
+Follow the format: `type: short description`
+- `feat`: New feature.
+- `fix`: Bug fix.
+- `refactor`: Code cleanup or improvement without changing functionality.
+- `docs`: Documentation changes.
 
-## 4. Ciclo de Desarrollo Local
-1. **Configurar**: Abrir en Visual Studio 2022 (Abrir Carpeta).
-2. **Compilar**: Asegurarse de usar la configuración `x64-Debug` o `x64-Release`.
-3. **Probar**:
-   - Detener cualquier instancia previa del driver.
-   - Lanzar el ejecutable pasando la letra de unidad (ej: `Z:`).
-   - Verificar con `dir Z:` en una terminal.
+## 4. Local Development Cycle
+1. **Setup**: Open the project in Visual Studio 2022 (Open Folder).
+2. **Build**: Ensure you are using `x64-Debug` or `x64-Release` configurations.
+3. **Test**:
+   - Stop any previous driver instances.
+   - Run the executable with a drive letter (e.g., `Z:`).
+   - Verify access using `dir Z:` in a terminal.
 
-## 5. Limpieza antes de Push
-Antes de realizar un push, asegúrate de:
-- Que el código compile sin errores ni advertencias graves.
-- No incluir archivos binarios (`.exe`, `.pdb`) ni carpetas de salida (`out/`, `build/`).
-- El archivo `.gitignore` ya está configurado para evitar esto automáticamente.
+## 5. Pre-Push Checklist
+Before pushing, ensure:
+- The code compiles without errors or critical warnings.
+- No binary files (`.exe`, `.pdb`) or output folders (`out/`, `build/`) are included.
+- The `.gitignore` file is correctly configured to skip these automatically.

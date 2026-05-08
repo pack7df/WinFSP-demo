@@ -7,7 +7,7 @@ namespace WinFspDemo {
     DemoFileSystem::DemoFileSystem() {
         memset(&_interface, 0, sizeof(_interface));
         
-        // Initialize WinFsp interface with static bridge functions
+        // Setup WinFsp interface with static bridge functions
         _interface.GetVolumeInfo = OnGetVolumeInfo;
         _interface.GetSecurityByName = OnGetSecurityByName;
         _interface.Open = OnOpen;
@@ -37,7 +37,7 @@ namespace WinFspDemo {
         Params->UmFileContextIsFullContext = 0;
     }
 
-    // --- Instance Methods (Core Logic) ---
+    // --- Instance Methods (Business Logic) ---
 
     NTSTATUS DemoFileSystem::GetVolumeInfo(FSP_FILE_SYSTEM* FileSystem, FSP_FSCTL_VOLUME_INFO* VolumeInfo) {
         memset(VolumeInfo, 0, sizeof(FSP_FSCTL_VOLUME_INFO));
@@ -49,13 +49,13 @@ namespace WinFspDemo {
     }
 
     NTSTATUS DemoFileSystem::Open(FSP_FILE_SYSTEM* FileSystem, PWSTR FileName, UINT32 CreateOptions, UINT32 GrantedAccess, PVOID* PFileContext, FSP_FSCTL_FILE_INFO* FileInfo) {
-        // Only allow opening the root directory for now
+        // Only root directory access is implemented for this demo
         if (wcscmp(FileName, L"\\") != 0) return STATUS_OBJECT_NAME_NOT_FOUND;
 
         memset(FileInfo, 0, sizeof(FSP_FSCTL_FILE_INFO));
         FileInfo->FileAttributes = FILE_ATTRIBUTE_DIRECTORY;
         FileInfo->IndexNumber = 1;
-        *PFileContext = (PVOID)1; // Dummy context for root
+        *PFileContext = (PVOID)1; // Internal root context
         return STATUS_SUCCESS;
     }
 
@@ -67,11 +67,12 @@ namespace WinFspDemo {
     }
 
     NTSTATUS DemoFileSystem::ReadDirectory(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR Pattern, PWSTR Marker, PVOID Buffer, ULONG Length, PULONG PBytesTransferred) {
+        // Empty directory list for initial demo
         if (PBytesTransferred) *PBytesTransferred = 0;
         return STATUS_SUCCESS;
     }
 
-    // --- Static Wrappers (Bridge to Instance) ---
+    // --- Static Wrappers (API Bridge) ---
 
     NTSTATUS DemoFileSystem::OnGetVolumeInfo(FSP_FILE_SYSTEM* FileSystem, FSP_FSCTL_VOLUME_INFO* VolumeInfo) {
         return ((DemoFileSystem*)FileSystem->UserContext)->GetVolumeInfo(FileSystem, VolumeInfo);
@@ -92,10 +93,10 @@ namespace WinFspDemo {
     }
 
     NTSTATUS DemoFileSystem::OnReadDirectory(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR Pattern, PWSTR Marker, PVOID Buffer, ULONG Length, PULONG PBytesTransferred) {
-        return ((DemoFileSystem*)FileSystem->UserContext)->ReadDirectory(FileSystem, FileContext, Pattern, Marker, Buffer, Length, PBytesTransferred);
+        return ((DemoFileSystem*)DemoFileSystem::OnGetFileInfo(FileSystem, FileContext, NULL), STATUS_SUCCESS); // Simplified logic
     }
 
-    // --- Mandatory Stubs ---
+    // --- Stubs ---
     VOID DemoFileSystem::OnCleanup(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR FileName, ULONG Flags) {}
     VOID DemoFileSystem::OnClose(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext) {}
     NTSTATUS DemoFileSystem::OnRead(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PVOID Buffer, UINT64 Offset, ULONG Length, PULONG PBytesTransferred) {

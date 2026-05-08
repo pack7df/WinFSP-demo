@@ -21,7 +21,7 @@ int wmain(int argc, wchar_t* argv[]) {
     memset(&VolumeParams, 0, sizeof(VolumeParams));
     demoFs.FillVolumeParams(&VolumeParams);
 
-    // Create the WinFsp file system object
+    // Use the standard WinFsp device name for disk volumes
     Result = FspFileSystemCreate(
         (PWSTR)L"WinFsp.Disk",
         &VolumeParams,
@@ -33,7 +33,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return (int)Result;
     }
 
-    // Inject the class instance into the FileSystem UserContext
+    // Inject the class instance into the FileSystem UserContext for callback access
     FileSystem->UserContext = &demoFs;
 
     Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
@@ -50,7 +50,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return (int)Result;
     }
 
-    std::wcout << L"Demo FS Mounted! Check " << MountPoint << std::endl;
+    std::wcout << L"Demo FS Mounted! Accessing via: " << MountPoint << std::endl;
     
     Sleep(INFINITE);
 

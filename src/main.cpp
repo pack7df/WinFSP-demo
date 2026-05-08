@@ -1,60 +1,75 @@
-﻿#include <winfsp/winfsp.h>
+#include <winfsp/winfsp.h>
 #include "DemoFileSystem.h"
-#include <iostream>
+#include <cstdio>
 
 using namespace WinFspDemo;
 
+/**
+ * Main entry point for the WinFsp Demo application.
+ * Mounts a virtual disk using the DemoFileSystem implementation.
+ */
 int wmain(int argc, wchar_t* argv[]) {
     if (argc < 2) {
-        std::wcout << L"Usage: WinFspDemo.exe <MountPoint>" << std::endl;
+        printf("Usage: WinFspDemo.exe <MountPoint>\n");
         return 1;
     }
 
     PWSTR MountPoint = argv[1];
-    FSP_FILE_SYSTEM* FileSystem;
-    NTSTATUS Result;
-    
-    // Instantiate the generic demo filesystem logic
+    printf("--- WinFsp Demo (Class-based) ---\n");
+    printf("MountPoint: %ls\n", MountPoint);
+    fflush(stdout);
+
     DemoFileSystem demoFs;
 
+    // Configure volume parameters
     FSP_FSCTL_VOLUME_PARAMS VolumeParams;
     memset(&VolumeParams, 0, sizeof(VolumeParams));
     demoFs.FillVolumeParams(&VolumeParams);
 
-    // Use the standard WinFsp device name for disk volumes
-    Result = FspFileSystemCreate(
+    // Create the file system object
+    FSP_FILE_SYSTEM* FileSystem = nullptr;
+    NTSTATUS Result = FspFileSystemCreate(
         (PWSTR)L"WinFsp.Disk",
         &VolumeParams,
-        demoFs.GetInterface(),
+        DemoFileSystem::GetInterface(),
         &FileSystem);
 
     if (!NT_SUCCESS(Result)) {
-        std::cerr << "Failed to create file system: " << std::hex << (unsigned int)Result << std::endl;
-        return (int)Result;
+        printf("Error FspFileSystemCreate: 0x%08X\n", (unsigned int)Result);
+        return 1;
     }
 
-    // Inject the class instance into the FileSystem UserContext for callback access
+    // Associate our C++ class instance with the WinFsp file system object
     FileSystem->UserContext = &demoFs;
+    printf("FileSystem created successfully\n");
 
+    // Set the mount point (e.g., Z:)
     Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
     if (!NT_SUCCESS(Result)) {
-        std::cerr << "Failed to set mount point: " << std::hex << (unsigned int)Result << std::endl;
+        printf("Error SetMountPoint: 0x%08X\n", (unsigned int)Result);
         FspFileSystemDelete(FileSystem);
-        return (int)Result;
+        return 1;
     }
+    printf("MountPoint set successfully\n");
 
+    // Start the FSD (File System Dispatcher)
     Result = FspFileSystemStartDispatcher(FileSystem, 0);
     if (!NT_SUCCESS(Result)) {
-        std::cerr << "Failed to start dispatcher: " << std::hex << (unsigned int)Result << std::endl;
+        printf("Error StartDispatcher: 0x%08X\n", (unsigned int)Result);
+        FspFileSystemRemoveMountPoint(FileSystem);
         FspFileSystemDelete(FileSystem);
-        return (int)Result;
+        return 1;
     }
+    printf("Dispatcher started. File system ready at %ls\n", MountPoint);
+    printf("Press Ctrl+C to unmount.\n");
+    fflush(stdout);
 
-    std::wcout << L"Demo FS Mounted! Accessing via: " << MountPoint << std::endl;
-    
+    // Keep the process alive while the file system is mounted
     Sleep(INFINITE);
 
+    // Cleanup
     FspFileSystemStopDispatcher(FileSystem);
+    FspFileSystemRemoveMountPoint(FileSystem);
     FspFileSystemDelete(FileSystem);
 
     return 0;

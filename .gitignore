@@ -1,0 +1,19 @@
+﻿# Visual Studio
+.vs/
+out/
+build/
+bin/
+obj/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeSettings.json
+*.cmake
+install_manifest.txt
+
+# Otros
+*.user
+*.pdb
+*.exe
+*.dll

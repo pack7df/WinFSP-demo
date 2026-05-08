@@ -14,13 +14,14 @@ int wmain(int argc, wchar_t* argv[]) {
     FSP_FILE_SYSTEM* FileSystem;
     NTSTATUS Result;
     
-    // DemoFileSystem es un objeto genérico para este demo
+    // Instantiate the generic demo filesystem logic
     DemoFileSystem demoFs;
 
     FSP_FSCTL_VOLUME_PARAMS VolumeParams;
     memset(&VolumeParams, 0, sizeof(VolumeParams));
     demoFs.FillVolumeParams(&VolumeParams);
 
+    // Create the WinFsp file system object
     Result = FspFileSystemCreate(
         (PWSTR)L"WinFsp.Disk",
         &VolumeParams,
@@ -32,7 +33,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return (int)Result;
     }
 
-    // Inyectamos la instancia en el UserContext
+    // Inject the class instance into the FileSystem UserContext
     FileSystem->UserContext = &demoFs;
 
     Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);

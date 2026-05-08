@@ -2,7 +2,7 @@
 #include "DemoFileSystem.h"
 #include <iostream>
 
-using namespace SaunaFS;
+using namespace WinFspDemo;
 
 int wmain(int argc, wchar_t* argv[]) {
     if (argc < 2) {
@@ -14,17 +14,17 @@ int wmain(int argc, wchar_t* argv[]) {
     FSP_FILE_SYSTEM* FileSystem;
     NTSTATUS Result;
     
-    // Instanciamos nuestra lógica de negocio encapsulada
-    SaunaFileSystem saunaFs;
+    // DemoFileSystem es un objeto genérico para este demo
+    DemoFileSystem demoFs;
 
     FSP_FSCTL_VOLUME_PARAMS VolumeParams;
     memset(&VolumeParams, 0, sizeof(VolumeParams));
-    saunaFs.FillVolumeParams(&VolumeParams);
+    demoFs.FillVolumeParams(&VolumeParams);
 
     Result = FspFileSystemCreate(
         (PWSTR)L"WinFsp.Disk",
         &VolumeParams,
-        saunaFs.GetInterface(),
+        demoFs.GetInterface(),
         &FileSystem);
 
     if (!NT_SUCCESS(Result)) {
@@ -32,8 +32,8 @@ int wmain(int argc, wchar_t* argv[]) {
         return (int)Result;
     }
 
-    // Inyectamos la instancia de nuestra clase en el contexto del sistema de archivos
-    FileSystem->UserContext = &saunaFs;
+    // Inyectamos la instancia en el UserContext
+    FileSystem->UserContext = &demoFs;
 
     Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
     if (!NT_SUCCESS(Result)) {
@@ -49,7 +49,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return (int)Result;
     }
 
-    std::wcout << L"OOP Mounted! Check " << MountPoint << std::endl;
+    std::wcout << L"Demo FS Mounted! Check " << MountPoint << std::endl;
     
     Sleep(INFINITE);
 

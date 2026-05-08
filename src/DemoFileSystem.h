@@ -8,27 +8,24 @@ typedef NTSTATUS *PNTSTATUS;
 
 #include <winfsp/winfsp.h>
 
-namespace SaunaFS {
+namespace WinFspDemo {
 
-    class SaunaFileSystem {
+    class DemoFileSystem {
     public:
-        SaunaFileSystem();
-        ~SaunaFileSystem();
+        DemoFileSystem();
+        ~DemoFileSystem();
 
-        // Obtiene la interfaz de callbacks configurada para WinFsp
         FSP_FILE_SYSTEM_INTERFACE* GetInterface();
-        
-        // Parámetros de volumen preconfigurados
         void FillVolumeParams(FSP_FSCTL_VOLUME_PARAMS* Params);
 
     private:
         FSP_FILE_SYSTEM_INTERFACE _interface;
 
         // Métodos de instancia (Lógica de negocio)
-        NTSTATUS GetVolumeInfo(FSP_FSCTL_VOLUME_INFO* VolumeInfo);
-        NTSTATUS Open(PWSTR FileName, UINT32 CreateOptions, UINT32 GrantedAccess, PVOID* PFileContext, FSP_FSCTL_FILE_INFO* FileInfo);
-        NTSTATUS GetFileInfo(PVOID FileContext, FSP_FSCTL_FILE_INFO* FileInfo);
-        NTSTATUS ReadDirectory(PVOID FileContext, PWSTR Pattern, PWSTR Marker, PVOID Buffer, ULONG Length, PULONG PBytesTransferred);
+        NTSTATUS GetVolumeInfo(FSP_FILE_SYSTEM* FileSystem, FSP_FSCTL_VOLUME_INFO* VolumeInfo);
+        NTSTATUS Open(FSP_FILE_SYSTEM* FileSystem, PWSTR FileName, UINT32 CreateOptions, UINT32 GrantedAccess, PVOID* PFileContext, FSP_FSCTL_FILE_INFO* FileInfo);
+        NTSTATUS GetFileInfo(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, FSP_FSCTL_FILE_INFO* FileInfo);
+        NTSTATUS ReadDirectory(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR Pattern, PWSTR Marker, PVOID Buffer, ULONG Length, PULONG PBytesTransferred);
         
         // Wrappers estáticos (Puentes C -> C++)
         static NTSTATUS OnGetVolumeInfo(FSP_FILE_SYSTEM* FileSystem, FSP_FSCTL_VOLUME_INFO* VolumeInfo);
@@ -37,7 +34,6 @@ namespace SaunaFS {
         static NTSTATUS OnGetFileInfo(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, FSP_FSCTL_FILE_INFO* FileInfo);
         static NTSTATUS OnReadDirectory(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR Pattern, PWSTR Marker, PVOID Buffer, ULONG Length, PULONG PBytesTransferred);
         
-        // Stubs obligatorios (pueden ampliarse luego)
         static VOID OnCleanup(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PWSTR FileName, ULONG Flags);
         static VOID OnClose(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext);
         static NTSTATUS OnRead(FSP_FILE_SYSTEM* FileSystem, PVOID FileContext, PVOID Buffer, UINT64 Offset, ULONG Length, PULONG PBytesTransferred);

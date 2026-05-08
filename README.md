@@ -1,49 +1,28 @@
-# WinFsp C++ Demo Project
+﻿# WinFsp Virtual Filesystem Demo
 
-This is a minimal demonstration project for learning how to use **WinFsp** (Windows File System Proxy) with C++26.
+A professional C++ demonstration of a virtual filesystem using the **WinFsp** (Windows File System Proxy) framework. This project serves as a template for building custom user-mode filesystems on Windows.
+
+## Features
+- **OOP Architecture**: Fully encapsulated logic using the `DemoFileSystem` class.
+- **WinFsp Integration**: Robust implementation of mandatory callbacks (Open, ReadDirectory, GetFileInfo, etc.).
+- **Automatic Mounting**: Easy-to-use CLI to mount virtual drives to any available letter.
+- **SOLID Principles**: Clean, modular, and maintainable codebase.
 
 ## Prerequisites
+- [WinFsp SDK](https://github.com/winfsp/winfsp) installed on your system.
+- Visual Studio 2022 with C++ and CMake support.
 
-1.  **WinFsp SDK**: Download and install from [winfsp.dev](https://winfsp.dev/).
-2.  **CMake**: Version 3.20 or higher.
-3.  **Visual Studio**: With "Desktop development with C++" workload (latest version recommended).
+## Getting Started
+1. Clone the repository.
+2. Open the project folder in Visual Studio.
+3. Build the project using the `x64-Debug` configuration.
+4. Run the application passing a drive letter as an argument:
+   ```powershell
+   .\WinFspDemo.exe Z:
+   ```
 
-## Project Structure
+## Development
+Refer to [git-workflow.md](./git-workflow.md) for branching strategy and commit standards. All development follows the rules defined in [STYLEGUIDE.md](./STYLEGUIDE.md).
 
--   `CMakeLists.txt`: Build configuration.
--   `src/main.cpp`: Entry point, initializes the WinFsp host and mounts the drive.
--   `src/DemoFileSystem.h/cpp`: Implementation of the WinFsp callbacks.
-
-## How to Build
-
-1.  Open a terminal in the project directory.
-2.  Run the following commands:
-
-```powershell
-mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
-```
-
-The executable will be located in `build/bin/Release/WinFspDemo.exe`.
-
-## How to Run
-
-You need an unused drive letter (e.g., `Z:`).
-
-```powershell
-.\bin\Release\WinFspDemo.exe Z:
-```
-
-Once mounted, you can open `Z:` in File Explorer. This demo currently only shows an empty root directory.
-
-## Learning Path
-
-This project implements the following core WinFsp callbacks:
--   `GetFileInfo`: Returns basic metadata about files/directories.
--   `Open`: Handles opening file or directory handles.
--   `ReadDirectory`: Returns the list of entries within a directory.
--   `Close`: Cleans up handles.
-
-To expand this project, try implementing `ReadFile`, `WriteFile`, or adding real file entries to the `ReadDirectory` implementation.
+## License
+This project is for demonstration purposes.
